@@ -22,7 +22,10 @@ pluginTester({
     //   snapshot: false,
     //   code: 'const x = notboilerplate`module.exports = "nothing"`;',
     // },
-    'basic value': 'const x = boilerplate`module.exports = "1"`',
+    'basic value': `
+    function MyClass () {}
+    MyClass.prototype.toString = () => '[[MyClass]]'
+    `,
     // 'simple variable assignment':
     //   'boilerplate`module.exports = "var x = \'some directive\'"`',
     // 'object with arrow function': `

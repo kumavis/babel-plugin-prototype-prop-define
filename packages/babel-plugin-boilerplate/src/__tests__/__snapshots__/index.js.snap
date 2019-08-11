@@ -1,11 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ast-transform basic value: basic value 1`] = `
+exports[`protoype-prop-define basic value: basic value 1`] = `
 
-const x = boilerplate\`module.exports = "1"\`
+function MyClass () {}
+MyClass.prototype.toString = () => '[[MyClass]]'
 
       ↓ ↓ ↓ ↓ ↓ ↓
 
-const x = etalpreliob\`module.exports = "1"\`;
+function MyClass() {}
+Object.defineProperty(MyClass.prototype, 'toString', {
+  value: () => '[[MyClass]]',
+  writable: true,
+  enumerable: true,
+  configurable: true
+});
 
 `;
