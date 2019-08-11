@@ -14,7 +14,7 @@ export default () =>
   // },
   {
     return {
-      name: 'protoype-prop-define', // optional
+      name: 'prototype-prop-define', // optional
       visitor: {
         // Program(path,{file: {opts: fileOpts}}) {},
         // TaggedTemplateExpression(path,{file: {opts: fileOpts}}) {},
