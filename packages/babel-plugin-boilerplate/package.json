@@ -1,8 +1,8 @@
 {
-  "name": "babel-plugin-boilerplate",
-  "version": "0.0.1",
-  "description": "Generate code at build-time",
-  "main": "dist/index.js",
+  "name": "babel-plugin-prototype-prop-define",
+  "version": "1.0.0",
+  "description": "Rewrite assignments on the prototypes to Object.defineProperty calls",
+  "main": "src/index.js",
   "engines": {
     "node": "> 4",
     "npm": "> 3"
@@ -16,17 +16,12 @@
     "validate": "kcd-scripts validate",
     "precommit": "kcd-scripts precommit"
   },
-  "files": [
-    "dist",
-    "macro.js"
-  ],
   "keywords": [
-    "babel-plugin-macros",
     "babel-plugin",
     "babel",
     "code generation"
   ],
-  "author": "your name <your@name.us> (http://yourname.com/)",
+  "author": "kumavis",
   "license": "MIT",
   "dependencies": {
     "babel-plugin-macros": "^2.2.1",
