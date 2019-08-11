@@ -5,7 +5,7 @@
 // TODO: ???
 // TODO: PROFIT
 
-export default () =>
+module.exports = () =>
   // {
   // types: t,
   // template,
