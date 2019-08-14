@@ -20,8 +20,8 @@ pluginTester({
   tests: {
     'should ignore': `
 
-    const x = {}
-    x.a = () => true
+      const x = {}
+      x.a = () => true
   
     `,
     'on object': `
@@ -47,6 +47,12 @@ pluginTester({
       const x = () => {}
       x.bind = () => true
 
+    `,
+    'ignore alternate assigment expressions': `
+
+      const x = {}
+      x.toString += 1
+    
     `,
     // 'key as string': `
 

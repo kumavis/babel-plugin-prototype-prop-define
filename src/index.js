@@ -75,6 +75,8 @@ module.exports = () =>
 
           // node -> "Xyz.toString = function(){ return "hello" }"
           const {node} = path
+          // ensure basic assignment (not += etc)
+          if (node.operator !== '=') return
           // member -> "Xyz.toString"
           const member = node.left
           // ensure assigning to a non-computed member

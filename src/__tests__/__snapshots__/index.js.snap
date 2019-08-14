@@ -1,5 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`prototype-prop-define ignore alternate assigment expressions: ignore alternate assigment expressions 1`] = `
+
+const x = {}
+x.toString += 1
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+const x = {};
+x.toString += 1;
+
+`;
+
 exports[`prototype-prop-define on array: on array 1`] = `
 
 const x = []
@@ -25,6 +37,7 @@ x.bind = () => true
       ↓ ↓ ↓ ↓ ↓ ↓
 
 const x = () => {};
+
 Object.defineProperty(x, "bind", {
   value: () => true,
   writable: true,
@@ -59,6 +72,7 @@ MyClass.prototype.toString = () => true
       ↓ ↓ ↓ ↓ ↓ ↓
 
 function MyClass() {}
+
 Object.defineProperty(MyClass.prototype, "toString", {
   value: () => true,
   writable: true,
@@ -76,6 +90,7 @@ x.a = () => true
       ↓ ↓ ↓ ↓ ↓ ↓
 
 const x = {};
+
 x.a = () => true;
 
 `;
