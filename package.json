@@ -1,5 +1,54 @@
 {
-	"devDependencies": {
-		"lerna": "^2.11.0"
-	}
+  "name": "babel-plugin-prototype-prop-define",
+  "version": "1.0.1",
+  "description": "Rewrite assignments on the prototypes to Object.defineProperty calls",
+  "main": "src/index.js",
+  "engines": {
+    "node": "> 4",
+    "npm": "> 3"
+  },
+  "scripts": {
+    "add-contributor": "kcd-scripts contributors add",
+    "build": "kcd-scripts build",
+    "lint": "kcd-scripts lint",
+    "test": "kcd-scripts test",
+    "test:update": "kcd-scripts test --updateSnapshot",
+    "validate": "kcd-scripts validate",
+    "precommit": "kcd-scripts precommit"
+  },
+  "keywords": [
+    "babel-plugin",
+    "babel",
+    "code generation"
+  ],
+  "author": "kumavis",
+  "license": "MIT",
+  "dependencies": {
+    "babel-plugin-macros": "^2.2.1",
+    "require-from-string": "^2.0.2"
+  },
+  "devDependencies": {
+    "ast-pretty-print": "^2.0.1",
+    "babel-plugin-tester": "^5.0.0",
+    "kcd-scripts": "^0.39.0"
+  },
+  "eslintConfig": {
+    "extends": "./node_modules/kcd-scripts/eslint.js"
+  },
+  "eslintIgnore": [
+    "node_modules",
+    "coverage",
+    "dist"
+  ],
+  "babel": {
+    "presets": "kcd-scripts/babel"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kentcdodds/babel-plugin-boilerplate.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kentcdodds/babel-plugin-boilerplate/issues"
+  },
+  "homepage": "https://github.com/kentcdodds/babel-plugin-boilerplate#readme"
 }
