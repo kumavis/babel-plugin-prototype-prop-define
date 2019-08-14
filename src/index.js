@@ -1,10 +1,3 @@
-// const getReplacers = require('./replace')
-// const {looksLike} = require('./helpers')
-
-// TODO: WRITE BABEL PLUGIN
-// TODO: ???
-// TODO: PROFIT
-
 const primordialKeySet = new Set([
   ...Object.getOwnPropertyNames(Object.prototype),
   ...Object.getOwnPropertyNames(Array.prototype),
