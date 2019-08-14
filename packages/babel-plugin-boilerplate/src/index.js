@@ -5,6 +5,61 @@
 // TODO: ???
 // TODO: PROFIT
 
+const primordialKeySet = new Set([
+  ...Object.getOwnPropertyNames(Object.prototype),
+  ...Object.getOwnPropertyNames(Array.prototype),
+  ...Object.getOwnPropertyNames(Function.prototype),
+  ...Object.getOwnPropertyNames(Error.prototype),
+])
+// Set {
+//   'constructor',
+//   '__defineGetter__',
+//   '__defineSetter__',
+//   'hasOwnProperty',
+//   '__lookupGetter__',
+//   '__lookupSetter__',
+//   'isPrototypeOf',
+//   'propertyIsEnumerable',
+//   'toString',
+//   'valueOf',
+//   '__proto__',
+//   'toLocaleString',
+//   'length',
+//   'concat',
+//   'find',
+//   'findIndex',
+//   'pop',
+//   'push',
+//   'shift',
+//   'unshift',
+//   'slice',
+//   'splice',
+//   'includes',
+//   'indexOf',
+//   'keys',
+//   'entries',
+//   'forEach',
+//   'filter',
+//   'map',
+//   'every',
+//   'some',
+//   'reduce',
+//   'reduceRight',
+//   'join',
+//   'reverse',
+//   'sort',
+//   'lastIndexOf',
+//   'copyWithin',
+//   'fill',
+//   'values',
+//   'name',
+//   'arguments',
+//   'caller',
+//   'apply',
+//   'bind',
+//   'call',
+//   'message' }
+
 module.exports = () =>
   // {
   // types: t,
@@ -21,43 +76,44 @@ module.exports = () =>
         // ImportDeclaration(path,{file: {opts: fileOpts}}) {},
         // CallExpression(path,{file: {opts: fileOpts}}) {},
         AssignmentExpression(path) {
-
           //
           // match
           //
 
-          // node -> MyClass.prototype.toString = function(){ return "hello" }
-          const { node } = path
-          // member -> MyClass.prototype.toString
+          // node -> "Xyz.toString = function(){ return "hello" }"
+          const {node} = path
+          // member -> "Xyz.toString"
           const member = node.left
           // ensure assigning to a non-computed member
           if (member.type !== 'MemberExpression') return
           if (member.computed) return
           // ensure member is a member expression for "prototype"
-          // assignmentParent -> MyClass.prototype
+          // assignmentParent -> "Xyz"
           const assignmentParent = member.object
-          if (assignmentParent.type !== 'MemberExpression') return
-          if (assignmentParent.computed) return
-          // assignmentTarget -> prototype
-          const assignmentTarget = assignmentParent.property
-          if (assignmentTarget.type !== 'Identifier') return
-          if (assignmentTarget.name !== 'prototype') return
+          // assignmentParent -> "toString"
+          const assignmentProperty = member.property
+          if (assignmentProperty.type !== 'Identifier') return
+          if (!primordialKeySet.has(assignmentProperty.name)) return
+          // assignmentValue -> "function(){ return "hello" }"
+          const assignmentValue = node.right
 
           //
           // transform
           //
 
-          // parentStatement -> MyClass.prototype
+          // parentStatement -> "Xyz"
           const parentStatement = assignmentParent
-          // propertyKeyStatement -> toString
-          const propertyKeyStatement = memberPropToDefinePropKeyArg(member.property)
-          // valueStatement -> function(){ return "hello" }
-          const valueStatement = node.right
-    
+          // propertyKeyStatement -> "toString"
+          const propertyKeyStatement = memberPropToDefinePropKeyArg(
+            assignmentProperty,
+          )
+          // valueStatement -> "function(){ return "hello" }"
+          const valueStatement = assignmentValue
+
           const definePropertyExpression = createDefinePropertyExpression(
             parentStatement,
             propertyKeyStatement,
-            valueStatement
+            valueStatement,
           )
 
           path.replaceWith(definePropertyExpression)
@@ -66,83 +122,86 @@ module.exports = () =>
     }
   }
 
-function createDefinePropertyExpression (parentStatement, propertyKeyStatement, valueStatement) {
+function createDefinePropertyExpression(
+  parentStatement,
+  propertyKeyStatement,
+  valueStatement,
+) {
   return {
-    "type": "CallExpression",
-    "callee": {
-      "type": "MemberExpression",
-      "object": {
-        "type": "Identifier",
-        "name": "Object"
+    type: 'CallExpression',
+    callee: {
+      type: 'MemberExpression',
+      object: {
+        type: 'Identifier',
+        name: 'Object',
       },
-      "property": {
-        "type": "Identifier",
-        "name": "defineProperty"
+      property: {
+        type: 'Identifier',
+        name: 'defineProperty',
       },
-      "computed": false
+      computed: false,
     },
-    "arguments": [
+    arguments: [
       parentStatement,
       propertyKeyStatement,
-      createPropertyDescriptor(valueStatement)
-    ]
-  }
-  
-}
-
-function memberPropToDefinePropKeyArg (memberProp) {
-  return {
-    "type": "StringLiteral",
-    "value": memberProp.name,
+      createPropertyDescriptor(valueStatement),
+    ],
   }
 }
 
-function createPropertyDescriptor (valueStatement) {
+function memberPropToDefinePropKeyArg(memberProp) {
   return {
-    "type": "ObjectExpression",
+    type: 'StringLiteral',
+    value: memberProp.name,
+  }
+}
+
+function createPropertyDescriptor(valueStatement) {
+  return {
+    type: 'ObjectExpression',
     // { value: 1, writable: true, enumerable: true, configurable: true }
-    "properties": [
+    properties: [
       {
-        "type": "ObjectProperty",
-        "key": {
-          "type": "Identifier",
-          "name": "value"
+        type: 'ObjectProperty',
+        key: {
+          type: 'Identifier',
+          name: 'value',
         },
-        "value": valueStatement
+        value: valueStatement,
       },
       {
-        "type": "ObjectProperty",
-        "key": {
-          "type": "Identifier",
-          "name": "writable"
+        type: 'ObjectProperty',
+        key: {
+          type: 'Identifier',
+          name: 'writable',
         },
-        "value": {
-          "type": "BooleanLiteral",
-          "value": true
-        }
+        value: {
+          type: 'BooleanLiteral',
+          value: true,
+        },
       },
       {
-        "type": "ObjectProperty",
-        "key": {
-          "type": "Identifier",
-          "name": "enumerable"
+        type: 'ObjectProperty',
+        key: {
+          type: 'Identifier',
+          name: 'enumerable',
         },
-        "value": {
-          "type": "BooleanLiteral",
-          "value": true
-        }
+        value: {
+          type: 'BooleanLiteral',
+          value: true,
+        },
       },
       {
-        "type": "ObjectProperty",
-        "key": {
-          "type": "Identifier",
-          "name": "configurable"
+        type: 'ObjectProperty',
+        key: {
+          type: 'Identifier',
+          name: 'configurable',
         },
-        "value": {
-          "type": "BooleanLiteral",
-          "value": true
-        }
+        value: {
+          type: 'BooleanLiteral',
+          value: true,
+        },
       },
-    ]
-  }  
+    ],
+  }
 }
