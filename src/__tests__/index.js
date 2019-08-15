@@ -54,11 +54,19 @@ pluginTester({
       x.toString += 1
     
     `,
-    // 'key as string': `
+    'dynamic key': `
 
-    //   const x = {}
-    //   x["toString"] = () => true
+      const x = {}
+      ;['toString'].forEach(key => {
+        x[key] = () => true
+      })
+    
+    `,
+    'key as string': `
 
-    // `,
+      const x = {}
+      x["toString"] = () => true
+
+    `,
   },
 })

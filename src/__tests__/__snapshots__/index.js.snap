@@ -1,5 +1,29 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`prototype-prop-define dynamic key: dynamic key 1`] = `
+
+const x = {}
+;['toString'].forEach(key => {
+  x[key] = () => true
+})
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+const x = {};
+['toString'].forEach(key => {
+  (function (target, key, value) {
+    ["constructor", "__defineGetter__", "__defineSetter__", "hasOwnProperty", "__lookupGetter__", "__lookupSetter__", "isPrototypeOf", "propertyIsEnumerable", "toString", "valueOf", "__proto__", "toLocaleString", "length", "concat", "find", "findIndex", "pop", "push", "shift", "unshift", "slice", "splice", "includes", "indexOf", "keys", "entries", "forEach", "filter", "map", "every", "some", "reduce", "reduceRight", "join", "reverse", "sort", "lastIndexOf", "copyWithin", "fill", "values", "name", "arguments", "caller", "apply", "bind", "call", "message"].includes(key) ? Object.defineProperty(target, key, {
+      value: value,
+      writable: true,
+      enumerable: true,
+      configurable: true
+    }) : target[key] = value;
+    return value;
+  })(x, key, () => true);
+});
+
+`;
+
 exports[`prototype-prop-define ignore alternate assigment expressions: ignore alternate assigment expressions 1`] = `
 
 const x = {}
@@ -9,6 +33,23 @@ x.toString += 1
 
 const x = {};
 x.toString += 1;
+
+`;
+
+exports[`prototype-prop-define key as string: key as string 1`] = `
+
+const x = {}
+x["toString"] = () => true
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+const x = {};
+Object.defineProperty(x, "toString", {
+  value: () => true,
+  writable: true,
+  enumerable: true,
+  configurable: true
+});
 
 `;
 
