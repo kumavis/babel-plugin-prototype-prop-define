@@ -242,107 +242,104 @@ function createDynamicAssignmentCheck (
   valueStatement,
 ) {
   return {
-    "type": "ExpressionStatement",
-    "expression": {
-      "type": "CallExpression",
-      "callee": {
-        "type": "FunctionExpression",
-        "id": null,
-        "generator": false,
-        "async": false,
-        "params": [
+    "type": "CallExpression",
+    "callee": {
+      "type": "FunctionExpression",
+      "id": null,
+      "generator": false,
+      "async": false,
+      "params": [
+        {
+          "type": "Identifier",
+          "name": "target"
+        },
+        {
+          "type": "Identifier",
+          "name": "key"
+        },
+        {
+          "type": "Identifier",
+          "name": "value"
+        }
+      ],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
           {
-            "type": "Identifier",
-            "name": "target"
-          },
-          {
-            "type": "Identifier",
-            "name": "key"
-          },
-          {
-            "type": "Identifier",
-            "name": "value"
-          }
-        ],
-        "body": {
-          "type": "BlockStatement",
-          "body": [
-            {
-              "type": "ExpressionStatement",
-              "expression": {
-                "type": "ConditionalExpression",
-                "test": {
-                  "type": "CallExpression",
-                  "callee": {
-                    "type": "MemberExpression",
-                    "object": createPrimordialKeyArray(),
-                    "property": {
-                      "type": "Identifier",
-                      "name": "includes"
-                    },
-                    "computed": false
-                  },
-                  "arguments": [
-                    {
-                      "type": "Identifier",
-                      "name": "key"
-                    }
-                  ]
-                },
-                "consequent": createDefinePropertyExpression(
-                  {
+            "type": "ExpressionStatement",
+            "expression": {
+              "type": "ConditionalExpression",
+              "test": {
+                "type": "CallExpression",
+                "callee": {
+                  "type": "MemberExpression",
+                  "object": createPrimordialKeyArray(),
+                  "property": {
                     "type": "Identifier",
-                    "name": "target"
+                    "name": "includes"
                   },
+                  "computed": false
+                },
+                "arguments": [
                   {
                     "type": "Identifier",
                     "name": "key"
-                  },
-                  {
+                  }
+                ]
+              },
+              "consequent": createDefinePropertyExpression(
+                {
+                  "type": "Identifier",
+                  "name": "target"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "key"
+                },
+                {
+                  "type": "Identifier",
+                  "name": "value"
+                },
+              ),
+              "alternate": {
+                "type": "AssignmentExpression",
+                "operator": "=",
+                "left": {
+                  "type": "MemberExpression",
+                  "object": {
                     "type": "Identifier",
-                    "name": "value"
+                    "name": "target"
                   },
-                ),
-                "alternate": {
-                  "type": "AssignmentExpression",
-                  "operator": "=",
-                  "left": {
-                    "type": "MemberExpression",
-                    "object": {
-                      "type": "Identifier",
-                      "name": "target"
-                    },
-                    "property": {
-                      "type": "Identifier",
-                      "name": "key"
-                    },
-                    "computed": true
-                  },
-                  "right": {
+                  "property": {
                     "type": "Identifier",
-                    "name": "value"
+                    "name": "key"
                   },
-                  "prototypePropDefineSkip": true
-                }
-              }
-            },
-            {
-              "type": "ReturnStatement",
-              "argument": {
-                "type": "Identifier",
-                "name": "value"
+                  "computed": true
+                },
+                "right": {
+                  "type": "Identifier",
+                  "name": "value"
+                },
+                "prototypePropDefineSkip": true
               }
             }
-          ],
-          "directives": []
-        }
-      },
-      "arguments": [
-        parentStatement,
-        propertyKeyStatement,
-        valueStatement,
-      ]
-    }
+          },
+          {
+            "type": "ReturnStatement",
+            "argument": {
+              "type": "Identifier",
+              "name": "value"
+            }
+          }
+        ],
+        "directives": []
+      }
+    },
+    "arguments": [
+      parentStatement,
+      propertyKeyStatement,
+      valueStatement,
+    ]
   }
   
 }
