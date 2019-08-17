@@ -11,13 +11,13 @@ const x = {}
 
 const x = {};
 ['toString'].forEach(key => {
-  (function (target, key, value) {
-    ["constructor", "__defineGetter__", "__defineSetter__", "hasOwnProperty", "__lookupGetter__", "__lookupSetter__", "isPrototypeOf", "propertyIsEnumerable", "toString", "valueOf", "__proto__", "toLocaleString", "length", "concat", "find", "findIndex", "pop", "push", "shift", "unshift", "slice", "splice", "includes", "indexOf", "keys", "entries", "forEach", "filter", "map", "every", "some", "reduce", "reduceRight", "join", "reverse", "sort", "lastIndexOf", "copyWithin", "fill", "values", "name", "arguments", "caller", "apply", "bind", "call", "message"].includes(key) ? Object.defineProperty(target, key, {
+  (function (parent, key, value) {
+    ["constructor", "__defineGetter__", "__defineSetter__", "hasOwnProperty", "__lookupGetter__", "__lookupSetter__", "isPrototypeOf", "propertyIsEnumerable", "toString", "valueOf", "__proto__", "toLocaleString", "length", "concat", "find", "findIndex", "pop", "push", "shift", "unshift", "slice", "splice", "includes", "indexOf", "keys", "entries", "forEach", "filter", "map", "every", "some", "reduce", "reduceRight", "join", "reverse", "sort", "lastIndexOf", "copyWithin", "fill", "values", "name", "arguments", "caller", "apply", "bind", "call", "message"].includes(key) ? Object.defineProperty(parent, key, {
       value: value,
       writable: true,
       enumerable: true,
       configurable: true
-    }) : target[key] = value;
+    }) : parent[key] = value;
     return value;
   })(x, key, () => true);
 });
@@ -44,12 +44,16 @@ x["toString"] = () => true
       ↓ ↓ ↓ ↓ ↓ ↓
 
 const x = {};
-Object.defineProperty(x, "toString", {
-  value: () => true,
-  writable: true,
-  enumerable: true,
-  configurable: true
-});
+
+(function (parent, key, value) {
+  Object.defineProperty(parent, key, {
+    value: value,
+    writable: true,
+    enumerable: true,
+    configurable: true
+  })
+  return value;
+})(x, "toString", () => true);
 
 `;
 
@@ -61,12 +65,16 @@ x.splice = () => true
       ↓ ↓ ↓ ↓ ↓ ↓
 
 const x = [];
-Object.defineProperty(x, "splice", {
-  value: () => true,
-  writable: true,
-  enumerable: true,
-  configurable: true
-});
+
+(function (parent, key, value) {
+  Object.defineProperty(parent, key, {
+    value: value,
+    writable: true,
+    enumerable: true,
+    configurable: true
+  })
+  return value;
+})(x, "splice", () => true);
 
 `;
 
@@ -79,12 +87,15 @@ x.bind = () => true
 
 const x = () => {};
 
-Object.defineProperty(x, "bind", {
-  value: () => true,
-  writable: true,
-  enumerable: true,
-  configurable: true
-});
+(function (parent, key, value) {
+  Object.defineProperty(parent, key, {
+    value: value,
+    writable: true,
+    enumerable: true,
+    configurable: true
+  })
+  return value;
+})(x, "bind", () => true);
 
 `;
 
@@ -96,12 +107,16 @@ x.toString = () => true
       ↓ ↓ ↓ ↓ ↓ ↓
 
 const x = {};
-Object.defineProperty(x, "toString", {
-  value: () => true,
-  writable: true,
-  enumerable: true,
-  configurable: true
-});
+
+(function (parent, key, value) {
+  Object.defineProperty(parent, key, {
+    value: value,
+    writable: true,
+    enumerable: true,
+    configurable: true
+  })
+  return value;
+})(x, "toString", () => true);
 
 `;
 
@@ -114,12 +129,15 @@ MyClass.prototype.toString = () => true
 
 function MyClass() {}
 
-Object.defineProperty(MyClass.prototype, "toString", {
-  value: () => true,
-  writable: true,
-  enumerable: true,
-  configurable: true
-});
+(function (parent, key, value) {
+  Object.defineProperty(parent, key, {
+    value: value,
+    writable: true,
+    enumerable: true,
+    configurable: true
+  })
+  return value;
+})(MyClass.prototype, "toString", () => true);
 
 `;
 

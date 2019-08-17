@@ -53,6 +53,8 @@ const primordialKeySet = new Set([
 //   'call',
 //   'message' }
 
+const SKIP_PARSE_FLAG = 'prototype-prop-define-skip'
+
 module.exports = () =>
   // {
   // types: t,
@@ -78,7 +80,7 @@ module.exports = () =>
           const {node} = path
 
           // internal flag to skip node
-          if (node.prototypePropDefineSkip) return
+          if (node[SKIP_PARSE_FLAG]) return
 
           // ensure basic assignment (not += etc)
           if (node.operator !== '=') return
@@ -132,7 +134,7 @@ module.exports = () =>
               assignmentKey,
             )
 
-            const definePropertyExpression = createDefinePropertyExpression(
+            const definePropertyExpression = createDefinePropertyAndResolveExpression(
               parentStatement,
               propertyKeyStatement,
               valueStatement,
@@ -145,7 +147,38 @@ module.exports = () =>
     }
   }
 
-function createDefinePropertyExpression(
+// (function(parent, key, value){
+//   Object.defineProperty(parent, key, value);
+//   return value
+// })(a, b, c)
+function createDefinePropertyAndResolveExpression (
+  parentStatement,
+  propertyKeyStatement,
+  valueStatement,
+) {
+  const body = [
+    createDefinePropertyExpression(
+      createIdentifier('parent'),
+      createIdentifier('key'),
+      createIdentifier('value'),
+    ),
+    {
+      "type": "ReturnStatement",
+      "argument": createIdentifier('value')
+    }
+  ]
+
+  const args = [
+    ['parent', parentStatement],
+    ['key', propertyKeyStatement],
+    ['value', valueStatement],
+  ]
+
+  return createIife (args, body)
+}
+
+// Object.defineProperty(parent, key, value)
+function createDefinePropertyExpression (
   parentStatement,
   propertyKeyStatement,
   valueStatement,
@@ -179,25 +212,19 @@ function createStringLiteral (value) {
   }
 }
 
+// { value: 1, writable: true, enumerable: true, configurable: true }
 function createPropertyDescriptor (valueStatement) {
   return {
     type: 'ObjectExpression',
-    // { value: 1, writable: true, enumerable: true, configurable: true }
     properties: [
       {
         type: 'ObjectProperty',
-        key: {
-          type: 'Identifier',
-          name: 'value',
-        },
+        key: createIdentifier('value'),
         value: valueStatement,
       },
       {
         type: 'ObjectProperty',
-        key: {
-          type: 'Identifier',
-          name: 'writable',
-        },
+        key: createIdentifier('writable'),
         value: {
           type: 'BooleanLiteral',
           value: true,
@@ -205,10 +232,7 @@ function createPropertyDescriptor (valueStatement) {
       },
       {
         type: 'ObjectProperty',
-        key: {
-          type: 'Identifier',
-          name: 'enumerable',
-        },
+        key: createIdentifier('enumerable'),
         value: {
           type: 'BooleanLiteral',
           value: true,
@@ -216,10 +240,7 @@ function createPropertyDescriptor (valueStatement) {
       },
       {
         type: 'ObjectProperty',
-        key: {
-          type: 'Identifier',
-          name: 'configurable',
-        },
+        key: createIdentifier('configurable'),
         value: {
           type: 'BooleanLiteral',
           value: true,
@@ -229,18 +250,70 @@ function createPropertyDescriptor (valueStatement) {
   }
 }
 
-// (function(target, key, value){
+// (function(parent, key, value){
 //   [].includes(key) ?
-//     DEFINE_PROP :
-//     target[key] = value;
+//     Object.defineProperty(parent, key, value) :
+//     parent[key] = value;
 //     return value
 // })(a, b, c)
-
 function createDynamicAssignmentCheck (
   parentStatement,
   propertyKeyStatement,
   valueStatement,
 ) {
+  const body = [
+    {
+      "type": "ExpressionStatement",
+      "expression": {
+        "type": "ConditionalExpression",
+        "test": {
+          "type": "CallExpression",
+          "callee": {
+            "type": "MemberExpression",
+            "object": createPrimordialKeyArray(),
+            "property": createIdentifier('includes'),
+            "computed": false
+          },
+          "arguments": [
+            createIdentifier('key'),
+          ]
+        },
+        "consequent": createDefinePropertyExpression(
+          createIdentifier('parent'),
+          createIdentifier('key'),
+          createIdentifier('value'),
+        ),
+        "alternate": {
+          "type": "AssignmentExpression",
+          // prevent this plugin from transforming
+          [SKIP_PARSE_FLAG]: true,
+          "operator": "=",
+          "left": {
+            "type": "MemberExpression",
+            "object": createIdentifier('parent'),
+            "property": createIdentifier('key'),
+            "computed": true
+          },
+          "right": createIdentifier('value')
+        }
+      }
+    },
+    {
+      "type": "ReturnStatement",
+      "argument": createIdentifier('value')
+    }
+  ]
+
+  const args = [
+    ['parent', parentStatement],
+    ['key', propertyKeyStatement],
+    ['value', valueStatement],
+  ]
+
+  return createIife(args, body)  
+}
+
+function createIife (args, body) {
   return {
     "type": "CallExpression",
     "callee": {
@@ -248,100 +321,15 @@ function createDynamicAssignmentCheck (
       "id": null,
       "generator": false,
       "async": false,
-      "params": [
-        {
-          "type": "Identifier",
-          "name": "target"
-        },
-        {
-          "type": "Identifier",
-          "name": "key"
-        },
-        {
-          "type": "Identifier",
-          "name": "value"
-        }
-      ],
+      "params": args.map(([argName]) => createIdentifier(argName)),
       "body": {
         "type": "BlockStatement",
-        "body": [
-          {
-            "type": "ExpressionStatement",
-            "expression": {
-              "type": "ConditionalExpression",
-              "test": {
-                "type": "CallExpression",
-                "callee": {
-                  "type": "MemberExpression",
-                  "object": createPrimordialKeyArray(),
-                  "property": {
-                    "type": "Identifier",
-                    "name": "includes"
-                  },
-                  "computed": false
-                },
-                "arguments": [
-                  {
-                    "type": "Identifier",
-                    "name": "key"
-                  }
-                ]
-              },
-              "consequent": createDefinePropertyExpression(
-                {
-                  "type": "Identifier",
-                  "name": "target"
-                },
-                {
-                  "type": "Identifier",
-                  "name": "key"
-                },
-                {
-                  "type": "Identifier",
-                  "name": "value"
-                },
-              ),
-              "alternate": {
-                "type": "AssignmentExpression",
-                "operator": "=",
-                "left": {
-                  "type": "MemberExpression",
-                  "object": {
-                    "type": "Identifier",
-                    "name": "target"
-                  },
-                  "property": {
-                    "type": "Identifier",
-                    "name": "key"
-                  },
-                  "computed": true
-                },
-                "right": {
-                  "type": "Identifier",
-                  "name": "value"
-                },
-                "prototypePropDefineSkip": true
-              }
-            }
-          },
-          {
-            "type": "ReturnStatement",
-            "argument": {
-              "type": "Identifier",
-              "name": "value"
-            }
-          }
-        ],
+        body,
         "directives": []
       }
     },
-    "arguments": [
-      parentStatement,
-      propertyKeyStatement,
-      valueStatement,
-    ]
+    "arguments": args.map(([_, argValue]) => argValue)
   }
-  
 }
 
 function createPrimordialKeyArray () {
@@ -353,5 +341,12 @@ function createPrimordialKeyArray () {
         value: key,
       }
     })
+  }
+}
+
+function createIdentifier (name) {
+  return {
+    "type": "Identifier",
+    name,
   }
 }
