@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-prototype-prop-define",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "description": "Transform assignments to properties on built-in prototypes to Object.defineProperty calls",
   "main": "src/index.js",
   "engines": {
