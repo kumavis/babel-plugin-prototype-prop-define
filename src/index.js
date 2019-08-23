@@ -374,7 +374,12 @@ function createIdentifier (name) {
 function createSymbolIdentifier (name) {
   return {
     type: 'MemberExpression',
-    object: createIdentifier('Symbol'),
+    object: {
+      type: 'MemberExpression',
+      object: createIdentifier('self'),
+      property: createIdentifier('Symbol'),
+      computed: false,
+    },
     property: createIdentifier(name),
     computed: false,
   }
