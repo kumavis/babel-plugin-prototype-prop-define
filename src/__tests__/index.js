@@ -68,5 +68,11 @@ pluginTester({
       x["toString"] = () => true
 
     `,
+    'symbol assignment': `
+
+    const x = {}
+    x[Symbol.iterator] = () => true
+
+    `,
   },
 })

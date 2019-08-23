@@ -12,7 +12,7 @@ const x = {}
 const x = {};
 ['toString'].forEach(key => {
   (function (parent, key, value) {
-    ["constructor", "__defineGetter__", "__defineSetter__", "hasOwnProperty", "__lookupGetter__", "__lookupSetter__", "isPrototypeOf", "propertyIsEnumerable", "toString", "valueOf", "__proto__", "toLocaleString", "length", "concat", "find", "findIndex", "pop", "push", "shift", "unshift", "slice", "splice", "includes", "indexOf", "keys", "entries", "forEach", "filter", "map", "every", "some", "reduce", "reduceRight", "join", "reverse", "sort", "lastIndexOf", "copyWithin", "fill", "values", "name", "arguments", "caller", "apply", "bind", "call", "message"].includes(key) ? Object.defineProperty(parent, key, {
+    ["constructor", "__defineGetter__", "__defineSetter__", "hasOwnProperty", "__lookupGetter__", "__lookupSetter__", "isPrototypeOf", "propertyIsEnumerable", "toString", "valueOf", "__proto__", "toLocaleString", "length", "concat", "find", "findIndex", "pop", "push", "shift", "unshift", "slice", "splice", "includes", "indexOf", "keys", "entries", "forEach", "filter", "map", "every", "some", "reduce", "reduceRight", "join", "reverse", "sort", "lastIndexOf", "copyWithin", "fill", "values", "name", "arguments", "caller", "apply", "bind", "call", "message", Symbol.iterator, Symbol.unscopables, Symbol.hasInstance, Symbol.asyncIterator, Symbol.toStringTag].includes(key) ? Object.defineProperty(parent, key, {
       value: value,
       writable: true,
       enumerable: true,
@@ -151,5 +151,26 @@ x.a = () => true
 const x = {};
 
 x.a = () => true;
+
+`;
+
+exports[`prototype-prop-define symbol assignment: symbol assignment 1`] = `
+
+const x = {}
+x[Symbol.iterator] = () => true
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+const x = {};
+
+(function (parent, key, value) {
+  Object.defineProperty(parent, key, {
+    value: value,
+    writable: true,
+    enumerable: true,
+    configurable: true
+  })
+  return value;
+})(x, Symbol.iterator, () => true);
 
 `;

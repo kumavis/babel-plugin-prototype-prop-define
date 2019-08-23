@@ -1,4 +1,4 @@
-const primordialKeySet = new Set([
+const primordialPropSet = new Set([
   ...Object.getOwnPropertyNames(Object.prototype),
   ...Object.getOwnPropertyNames(Array.prototype),
   ...Object.getOwnPropertyNames(Function.prototype),
@@ -53,6 +53,21 @@ const primordialKeySet = new Set([
 //   'call',
 //   'message' }
 
+const primordialSymbolSet = new Set([
+  ...Object.getOwnPropertySymbols(Object.prototype),
+  ...Object.getOwnPropertySymbols(Array.prototype),
+  ...Object.getOwnPropertySymbols(Function.prototype),
+  ...Object.getOwnPropertySymbols(Error.prototype),
+  Symbol.asyncIterator,
+  Symbol.toStringTag,
+].map(symbol => symbol.toString().slice(14,-1)))
+// Set {
+//   'iterator',
+//   'unscopables',
+//   'hasInstance',
+//   'asyncIterator',
+//   'toStringTag' }
+
 const SKIP_PARSE_FLAG = 'prototype-prop-define-skip'
 
 module.exports = () =>
@@ -100,10 +115,14 @@ module.exports = () =>
           const parentStatement = assignmentParent
           // valueStatement -> "function(){ return "hello" }"
           const valueStatement = assignmentValue
-          
-          const isDynamicAssignment = member.computed && assignmentProperty.type !== 'StringLiteral'
+
+          const isDotPropAssignment = !member.computed
+          const isStringAssignment =  member.computed && assignmentProperty.type === 'StringLiteral'
+          const isSymbolAssignment =  member.computed && assignmentProperty.type === 'MemberExpression' && assignmentProperty.object.name === 'Symbol'
+          const isDynamicAssignment = !(isDotPropAssignment || isStringAssignment || isSymbolAssignment)
+
           if (isDynamicAssignment) {
-            
+
             const dynamicAssignmentCheck = createDynamicAssignmentCheck(
               parentStatement,
               assignmentProperty,
@@ -113,26 +132,36 @@ module.exports = () =>
             path.replaceWith(dynamicAssignmentCheck)
 
           } else {
+
             let assignmentKey
-            switch (assignmentProperty.type) {
-              case 'StringLiteral':
-                assignmentKey = assignmentProperty.value
-                break
-              case 'Identifier':
-                assignmentKey = assignmentProperty.name
-                break
-              default:
-                return
+            if (isDotPropAssignment) {
+              assignmentKey = assignmentProperty.name
+            } else if (isStringAssignment) {
+              assignmentKey = assignmentProperty.value
+            } else if (isSymbolAssignment) {
+              assignmentKey = assignmentProperty.property.name
+            } else {
+              return
             }
 
             // if (assignmentProperty.type !== 'Identifier') return
-            // skip if proeprty not on whitelist
-            if (!primordialKeySet.has(assignmentKey)) return
+            // skip if property not on whitelist
+            const keyInWhitelist = primordialPropSet.has(assignmentKey) || primordialSymbolSet.has(assignmentKey)
+            if (!keyInWhitelist) return
 
             // propertyKeyStatement -> "toString"
-            const propertyKeyStatement = createStringLiteral(
-              assignmentKey,
-            )
+            let propertyKeyStatement
+            if (isDotPropAssignment || isStringAssignment) {
+              propertyKeyStatement = createStringLiteral(
+                assignmentKey,
+              )
+            } else if (isSymbolAssignment) {
+              propertyKeyStatement = createSymbolIdentifier(
+                assignmentKey
+              )
+            } else {
+              return
+            }
 
             const definePropertyExpression = createDefinePropertyAndResolveExpression(
               parentStatement,
@@ -202,13 +231,6 @@ function createDefinePropertyExpression (
       propertyKeyStatement,
       createPropertyDescriptor(valueStatement),
     ],
-  }
-}
-
-function createStringLiteral (value) {
-  return {
-    type: 'StringLiteral',
-    value,
   }
 }
 
@@ -335,12 +357,10 @@ function createIife (args, body) {
 function createPrimordialKeyArray () {
   return {
     "type": "ArrayExpression",
-    "elements": Array.from(primordialKeySet).map(key => {
-      return {
-        type: 'StringLiteral',
-        value: key,
-      }
-    })
+    "elements": [].concat(
+      Array.from(primordialPropSet).map(createStringLiteral),
+      Array.from(primordialSymbolSet).map(createSymbolIdentifier),
+    )
   }
 }
 
@@ -348,5 +368,21 @@ function createIdentifier (name) {
   return {
     "type": "Identifier",
     name,
+  }
+}
+
+function createSymbolIdentifier (name) {
+  return {
+    type: 'MemberExpression',
+    object: createIdentifier('Symbol'),
+    property: createIdentifier(name),
+    computed: false,
+  }
+}
+
+function createStringLiteral (value) {
+  return {
+    type: 'StringLiteral',
+    value,
   }
 }
