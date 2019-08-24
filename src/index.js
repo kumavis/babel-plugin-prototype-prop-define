@@ -376,7 +376,7 @@ function createSymbolIdentifier (name) {
     type: 'MemberExpression',
     object: {
       type: 'MemberExpression',
-      object: createIdentifier('self'),
+      object: createIdentifier('globalThis'),
       property: createIdentifier('Symbol'),
       computed: false,
     },
