@@ -1,72 +1,21 @@
+const arrItrProto = Object.getPrototypeOf([].values())
+
 const primordialPropSet = new Set([
   ...Object.getOwnPropertyNames(Object.prototype),
   ...Object.getOwnPropertyNames(Array.prototype),
   ...Object.getOwnPropertyNames(Function.prototype),
   ...Object.getOwnPropertyNames(Error.prototype),
+  ...Object.getOwnPropertyNames(arrItrProto),
 ])
-// Set {
-//   'constructor',
-//   '__defineGetter__',
-//   '__defineSetter__',
-//   'hasOwnProperty',
-//   '__lookupGetter__',
-//   '__lookupSetter__',
-//   'isPrototypeOf',
-//   'propertyIsEnumerable',
-//   'toString',
-//   'valueOf',
-//   '__proto__',
-//   'toLocaleString',
-//   'length',
-//   'concat',
-//   'find',
-//   'findIndex',
-//   'pop',
-//   'push',
-//   'shift',
-//   'unshift',
-//   'slice',
-//   'splice',
-//   'includes',
-//   'indexOf',
-//   'keys',
-//   'entries',
-//   'forEach',
-//   'filter',
-//   'map',
-//   'every',
-//   'some',
-//   'reduce',
-//   'reduceRight',
-//   'join',
-//   'reverse',
-//   'sort',
-//   'lastIndexOf',
-//   'copyWithin',
-//   'fill',
-//   'values',
-//   'name',
-//   'arguments',
-//   'caller',
-//   'apply',
-//   'bind',
-//   'call',
-//   'message' }
 
 const primordialSymbolSet = new Set([
   ...Object.getOwnPropertySymbols(Object.prototype),
   ...Object.getOwnPropertySymbols(Array.prototype),
   ...Object.getOwnPropertySymbols(Function.prototype),
   ...Object.getOwnPropertySymbols(Error.prototype),
+  ...Object.getOwnPropertySymbols(arrItrProto),
   Symbol.asyncIterator,
-  Symbol.toStringTag,
 ].map(symbol => symbol.toString().slice(14,-1)))
-// Set {
-//   'iterator',
-//   'unscopables',
-//   'hasInstance',
-//   'asyncIterator',
-//   'toStringTag' }
 
 const SKIP_PARSE_FLAG = 'prototype-prop-define-skip'
 

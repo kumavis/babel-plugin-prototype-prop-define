@@ -12,7 +12,7 @@ const x = {}
 const x = {};
 ['toString'].forEach(key => {
   (function (parent, key, value) {
-    ["constructor", "__defineGetter__", "__defineSetter__", "hasOwnProperty", "__lookupGetter__", "__lookupSetter__", "isPrototypeOf", "propertyIsEnumerable", "toString", "valueOf", "__proto__", "toLocaleString", "length", "concat", "find", "findIndex", "pop", "push", "shift", "unshift", "slice", "splice", "includes", "indexOf", "keys", "entries", "forEach", "filter", "map", "every", "some", "reduce", "reduceRight", "join", "reverse", "sort", "lastIndexOf", "copyWithin", "fill", "values", "name", "arguments", "caller", "apply", "bind", "call", "message", globalThis.Symbol.iterator, globalThis.Symbol.unscopables, globalThis.Symbol.hasInstance, globalThis.Symbol.asyncIterator, globalThis.Symbol.toStringTag].includes(key) ? Object.defineProperty(parent, key, {
+    ["constructor", "__defineGetter__", "__defineSetter__", "hasOwnProperty", "__lookupGetter__", "__lookupSetter__", "isPrototypeOf", "propertyIsEnumerable", "toString", "valueOf", "__proto__", "toLocaleString", "length", "concat", "find", "findIndex", "pop", "push", "shift", "unshift", "slice", "splice", "includes", "indexOf", "keys", "entries", "forEach", "filter", "map", "every", "some", "reduce", "reduceRight", "join", "reverse", "sort", "lastIndexOf", "copyWithin", "fill", "values", "name", "arguments", "caller", "apply", "bind", "call", "message", "next", globalThis.Symbol.iterator, globalThis.Symbol.unscopables, globalThis.Symbol.hasInstance, globalThis.Symbol.toStringTag, globalThis.Symbol.asyncIterator].includes(key) ? Object.defineProperty(parent, key, {
       value: value,
       writable: true,
       enumerable: true,
